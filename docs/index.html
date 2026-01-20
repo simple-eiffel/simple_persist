@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>simple_persist - Eiffel Object Persistence</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        header p { font-size: 1.2rem; opacity: 0.9; }
+        .badges { margin-top: 20px; }
+        .badges img { margin: 0 5px; }
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            justify-content: center;
+            padding: 15px 0;
+        }
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        nav a:hover { background: var(--bg); }
+        main { padding: 40px 0; }
+        section { background: white; border-radius: 8px; padding: 30px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        h2 { color: var(--primary); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+        h3 { margin: 20px 0 10px; }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+        code { font-family: 'Fira Code', monospace; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--bg); font-weight: 600; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .feature-card {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        .feature-card h4 { color: var(--primary); margin-bottom: 10px; }
+        footer {
+            background: var(--text);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+        }
+        footer a { color: #93c5fd; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>simple_persist</h1>
+            <p>SCOOP-Safe Object Persistence for Eiffel</p>
+            <div class="badges">
+                <img src="https://img.shields.io/badge/Eiffel-25.02-blue.svg" alt="Eiffel">
+                <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT">
+                <img src="https://img.shields.io/badge/Tests-11%20passed-brightgreen.svg" alt="Tests">
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#quickstart">Quick Start</a></li>
+            <li><a href="#api">API Reference</a></li>
+            <li><a href="#examples">Examples</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_persist">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>simple_persist is a lightweight object persistence library for Eiffel providing binary serialization, in-memory object chains, fluent queries, and hash-based indexing.</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Binary Serialization</h4>
+                    <p>Efficient binary format with SP_WRITER and SP_READER for primitives, strings, and custom objects.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Object Chains</h4>
+                    <p>In-memory collections with cursor navigation, soft delete, and file persistence.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Fluent Queries</h4>
+                    <p>Builder pattern for filtering with where(), pagination with take()/skip(), and ordering.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Hash Indexing</h4>
+                    <p>Fast key-based lookups with automatic index maintenance and multi-value support.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Design by Contract</h4>
+                    <p>Full preconditions, postconditions, and invariants for reliable code.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>SCOOP Compatible</h4>
+                    <p>Safe for concurrent access in SCOOP-enabled applications.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="quickstart">
+            <h2>Quick Start</h2>
+
+            <h3>Installation</h3>
+            <pre><code>&lt;library name="simple_persist" location="$SIMPLE_LIBS\simple_persist\simple_persist.ecf"/&gt;</code></pre>
+
+            <h3>Define a Storable Object</h3>
+            <pre><code>class MY_ITEM inherit SP_STORABLE
+
+feature
+    name: STRING_32
+    value: INTEGER
+
+    store (writer: SP_WRITER)
+        do
+            writer.put_string (name)
+            writer.put_integer_32 (value)
+        end
+
+    retrieve (reader: SP_READER)
+        do
+            name := reader.read_string
+            value := reader.read_integer_32
+        end
+end</code></pre>
+
+            <h3>Create and Persist</h3>
+            <pre><code>local
+    chain: SP_ARRAYED_CHAIN [MY_ITEM]
+    item: MY_ITEM
+do
+    create chain.make
+    create item.make_default
+    item.name := "Test"
+    item.value := 42
+    chain.extend (item)
+    chain.save_as ("data.bin")
+end</code></pre>
+        </section>
+
+        <section id="api">
+            <h2>API Reference</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Purpose</th>
+                        <th>Key Features</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SIMPLE_PERSIST</strong></td>
+                        <td>Facade</td>
+                        <td>file_exists, delete_file, version</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SP_WRITER</strong></td>
+                        <td>Serialization</td>
+                        <td>put_integer_*, put_string, put_boolean, to_file</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SP_READER</strong></td>
+                        <td>Deserialization</td>
+                        <td>read_integer_*, read_string, read_boolean, from_file</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SP_CHAIN</strong></td>
+                        <td>Base chain</td>
+                        <td>save, load, mark_deleted, compact</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SP_ARRAYED_CHAIN</strong></td>
+                        <td>Array chain</td>
+                        <td>extend, remove, item, start/forth/back/finish</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SP_STORABLE</strong></td>
+                        <td>Base object</td>
+                        <td>store, retrieve, is_deleted</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SP_QUERY</strong></td>
+                        <td>Query builder</td>
+                        <td>where, and_where, or_where, take, skip, results</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SP_HASH_INDEX</strong></td>
+                        <td>Hash index</td>
+                        <td>items_for_key, first_for_key, on_extend, on_remove</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="examples">
+            <h2>Examples</h2>
+
+            <h3>Querying with Conditions</h3>
+            <pre><code>local
+    query: SP_QUERY [MY_ITEM]
+    results: LIST [MY_ITEM]
+do
+    create query.make (chain)
+    results := query
+        .where (agent (it: MY_ITEM): BOOLEAN do Result := it.value > 10 end)
+        .and_where (agent (it: MY_ITEM): BOOLEAN do Result := it.name.has_substring ("test") end)
+        .take (50)
+        .skip (10)
+        .results
+end</code></pre>
+
+            <h3>Using Indexes</h3>
+            <pre><code>local
+    index: SP_HASH_INDEX [MY_ITEM, STRING_32]
+    items: LIST [MY_ITEM]
+do
+    create index.make ("name_idx", agent (it: MY_ITEM): STRING_32 do Result := it.name end)
+
+    -- Register items
+    across chain as ic loop
+        index.on_extend (ic.item)
+    end
+
+    -- Fast lookup
+    items := index.items_for_key ("Alpha")
+end</code></pre>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Part of the <a href="https://github.com/simple-eiffel">Simple Eiffel</a> ecosystem</p>
+            <p>MIT License | Author: Larry Rix</p>
+        </div>
+    </footer>
+</body>
+</html>
