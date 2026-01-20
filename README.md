@@ -1,31 +1,35 @@
-# simple_persist
+<p align="center">
+  <img src="docs/images/logo.png" alt="simple_persist logo" width="200">
+</p>
+
+<h1 align="center">simple_persist</h1>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/simple-eiffel/simple-eiffel.github.io/main/images/simple_persist_logo.png" alt="simple_persist logo" width="200"/>
+  <a href="https://simple-eiffel.github.io/simple_persist/">Documentation</a> •
+  <a href="https://github.com/simple-eiffel/simple_persist">GitHub</a>
 </p>
 
 <p align="center">
-  <strong>SCOOP-Safe Object Persistence for Eiffel</strong>
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT">
+  <img src="https://img.shields.io/badge/Eiffel-25.02-purple.svg" alt="Eiffel 25.02">
+  <img src="https://img.shields.io/badge/DBC-Contracts-green.svg" alt="Design by Contract">
 </p>
 
-<p align="center">
-  <a href="https://github.com/simple-eiffel/simple_persist"><img src="https://img.shields.io/badge/Eiffel-25.02-blue.svg" alt="Eiffel 25.02"></a>
-  <a href="https://github.com/simple-eiffel/simple_persist/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
-  <a href="https://simple-eiffel.github.io/simple_persist/"><img src="https://img.shields.io/badge/docs-online-brightgreen.svg" alt="Documentation"></a>
-</p>
+SCOOP-safe object persistence library for Eiffel with binary serialization, fluent queries, and hash indexing.
 
----
+Part of the [Simple Eiffel](https://github.com/simple-eiffel) ecosystem.
+
+## Status
+
+✅ **Production Ready** — v1.0.0
+- 11 tests passing
+- Full Design by Contract
+- SCOOP compatible
+- Void safe
 
 ## Overview
 
-**simple_persist** is a lightweight object persistence library for Eiffel that provides:
-
-- Binary serialization with `SP_WRITER` and `SP_READER`
-- In-memory object chains with `SP_CHAIN` and `SP_ARRAYED_CHAIN`
-- Fluent query API with `SP_QUERY`
-- Hash-based indexing with `SP_HASH_INDEX`
-- Soft delete support with `is_deleted` flag
-- SCOOP-compatible design for concurrent applications
+SIMPLE_PERSIST provides lightweight object persistence with **binary serialization** (SP_WRITER/SP_READER), **in-memory chains** (SP_ARRAYED_CHAIN), **fluent queries** (SP_QUERY), and **hash indexing** (SP_HASH_INDEX).
 
 ## Quick Start
 
@@ -37,7 +41,7 @@ Add to your ECF:
 <library name="simple_persist" location="$SIMPLE_LIBS\simple_persist\simple_persist.ecf"/>
 ```
 
-### Basic Usage
+### Define a Storable Object
 
 ```eiffel
 class MY_ITEM inherit SP_STORABLE
@@ -58,14 +62,17 @@ feature
             value := reader.read_integer_32
         end
 end
+```
 
--- Create and populate chain
+### Create and Persist
+
+```eiffel
 local
     chain: SP_ARRAYED_CHAIN [MY_ITEM]
     item: MY_ITEM
 do
     create chain.make
-    create item.make
+    create item.make_default
     item.name := "Test"
     item.value := 42
     chain.extend (item)
@@ -73,7 +80,7 @@ do
 end
 ```
 
-### Querying Data
+### Query Data
 
 ```eiffel
 local
@@ -88,7 +95,7 @@ do
 end
 ```
 
-### Indexing
+### Use Indexes
 
 ```eiffel
 local
@@ -117,23 +124,17 @@ end
 
 ## Features
 
+- **Binary Serialization**: Efficient binary format for all primitive types and strings
+- **Object Chains**: In-memory collections with cursor navigation and soft delete
+- **Fluent Queries**: Builder pattern with where/and_where/or_where/take/skip
+- **Hash Indexing**: Fast key-based lookups with multi-value support
 - **Design by Contract**: Full preconditions, postconditions, and invariants
-- **Void Safety**: 100% void-safe implementation
 - **SCOOP Compatible**: Safe for concurrent access
-- **Binary Format**: Efficient binary serialization
-- **Fluent API**: Builder pattern for queries
-- **Soft Delete**: Mark items deleted without removal
 
 ## Requirements
 
 - EiffelStudio 25.02 or later
 - Windows, Linux, or macOS
-
-## Documentation
-
-- [Full API Documentation](https://simple-eiffel.github.io/simple_persist/)
-- [Specification Summary](specs/SPEC-SUMMARY.md)
-- [Class Specifications](specs/CLASS-SPECS/)
 
 ## Testing
 
@@ -145,23 +146,10 @@ ec -batch -config simple_persist.ecf -target simple_persist_tests -c_compile
 ./EIFGENs/simple_persist_tests/W_code/simple_persist.exe
 ```
 
-Current test coverage: **11 tests, 100% pass**
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## Part of the Simple Eiffel Ecosystem
-
-<p align="center">
-  <a href="https://github.com/simple-eiffel">
-    <img src="https://img.shields.io/badge/ecosystem-simple--eiffel-blue.svg" alt="Simple Eiffel">
-  </a>
-</p>
-
-simple_persist is part of the [Simple Eiffel](https://github.com/simple-eiffel) ecosystem of libraries.
-
 ---
 
 **Author:** Larry Rix
-**Version:** 1.0.0
