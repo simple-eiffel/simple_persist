@@ -1,5 +1,10 @@
 note
-	description: "Fluent query builder for filtering chain items"
+	description: "[
+		Fluent query builder for filtering chain items.
+
+		Provides a fluent API for querying chains with conditions,
+		limiting, and ordering.
+	]"
 	author: "Larry Rix"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -13,15 +18,19 @@ create
 feature {NONE} -- Initialization
 
 	make (a_chain: SP_CHAIN [G])
-		-- Create query on given chain
-		require
-			chain_attached: a_chain /= Void
+		-- Create query on given chain.
 		do
 			chain := a_chain
 			create conditions.make (5)
 			max_results := 0
 			skip_count := 0
 			is_descending := False
+		ensure
+			chain_set: chain = a_chain
+			no_conditions: conditions.is_empty
+			no_limit: max_results = 0
+			no_skip: skip_count = 0
+			ascending: not is_descending
 		end
 
 feature -- Access
@@ -85,39 +94,43 @@ feature -- Access
 feature -- Conditions
 
 	where (a_condition: FUNCTION [G, BOOLEAN]): like Current
-		-- Add filter condition
-		require
-			condition_attached: a_condition /= Void
+		-- Add filter condition.
 		do
 			conditions.extend ([a_condition, Combiner_and])
 			Result := Current
+		ensure
+			condition_added: conditions.count = old conditions.count + 1
+			result_is_current: Result = Current
 		end
 
 	and_where (a_condition: FUNCTION [G, BOOLEAN]): like Current
-		-- Add condition with AND
-		require
-			condition_attached: a_condition /= Void
+		-- Add condition with AND.
 		do
 			conditions.extend ([a_condition, Combiner_and])
 			Result := Current
+		ensure
+			condition_added: conditions.count = old conditions.count + 1
+			result_is_current: Result = Current
 		end
 
 	or_where (a_condition: FUNCTION [G, BOOLEAN]): like Current
-		-- Add condition with OR
-		require
-			condition_attached: a_condition /= Void
+		-- Add condition with OR.
 		do
 			conditions.extend ([a_condition, Combiner_or])
 			Result := Current
+		ensure
+			condition_added: conditions.count = old conditions.count + 1
+			result_is_current: Result = Current
 		end
 
 	not_where (a_condition: FUNCTION [G, BOOLEAN]): like Current
-		-- Add negated condition
-		require
-			condition_attached: a_condition /= Void
+		-- Add negated condition.
 		do
 			conditions.extend ([agent negated_condition (a_condition, ?), Combiner_and])
 			Result := Current
+		ensure
+			condition_added: conditions.count = old conditions.count + 1
+			result_is_current: Result = Current
 		end
 
 feature -- Limiting
@@ -247,8 +260,8 @@ feature {NONE} -- Implementation
 		end
 
 invariant
-	chain_attached: chain /= Void
-	conditions_attached: conditions /= Void
+	chain_attached: attached chain
+	conditions_attached: attached conditions
 	max_results_non_negative: max_results >= 0
 	skip_count_non_negative: skip_count >= 0
 

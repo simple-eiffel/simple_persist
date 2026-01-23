@@ -1,5 +1,9 @@
 note
-	description: "Memory buffer writer for serializing objects"
+	description: "[
+		Memory buffer writer for serializing objects.
+
+		Design by Contract enhanced with void-safety assertions.
+	]"
 	author: "Larry Rix"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -170,9 +174,7 @@ feature -- Write Primitives
 		end
 
 	put_string (v: READABLE_STRING_GENERAL)
-		-- Write string with length prefix
-		require
-			string_attached: v /= Void
+		-- Write string with length prefix.
 		local
 			i: INTEGER
 		do
@@ -184,9 +186,8 @@ feature -- Write Primitives
 		end
 
 	put_bytes (v: MANAGED_POINTER; n: INTEGER)
-		-- Write n bytes from pointer
+		-- Write n bytes from pointer.
 		require
-			valid_pointer: v /= Void
 			non_negative_count: n >= 0
 			valid_source_size: n <= v.count
 		local
@@ -229,9 +230,8 @@ feature -- Buffer Operations
 		end
 
 	to_file (a_file: RAW_FILE)
-		-- Write buffer contents to file
+		-- Write buffer contents to file.
 		require
-			file_attached: a_file /= Void
 			file_open: a_file.is_open_write
 		do
 			a_file.put_managed_pointer (buffer, 0, count)
@@ -248,7 +248,7 @@ feature {NONE} -- Implementation
 		end
 
 invariant
-	buffer_attached: buffer /= Void
+	buffer_attached: attached buffer
 	count_non_negative: count >= 0
 	count_within_capacity: count <= capacity
 	capacity_positive: capacity > 0

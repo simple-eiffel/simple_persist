@@ -1,5 +1,9 @@
 note
-	description: "Memory buffer reader for deserializing objects"
+	description: "[
+		Memory buffer reader for deserializing objects.
+
+		Design by Contract enhanced with void-safety assertions.
+	]"
 	author: "Larry Rix"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -30,9 +34,8 @@ feature {NONE} -- Initialization
 		end
 
 	make_from_buffer (a_buffer: MANAGED_POINTER; a_count: INTEGER)
-		-- Create from existing buffer with a_count valid bytes
+		-- Create from existing buffer with a_count valid bytes.
 		require
-			valid_buffer: a_buffer /= Void
 			non_negative_count: a_count >= 0
 			valid_count: a_count <= a_buffer.count
 		do
@@ -267,9 +270,8 @@ feature -- Buffer Operations
 		end
 
 	from_file (a_file: RAW_FILE; n: INTEGER)
-		-- Read n bytes from file into buffer
+		-- Read n bytes from file into buffer.
 		require
-			file_attached: a_file /= Void
 			file_open_read: a_file.is_open_read
 			non_negative_count: n >= 0
 		do
@@ -285,7 +287,7 @@ feature -- Buffer Operations
 		end
 
 invariant
-	buffer_attached: buffer /= Void
+	buffer_attached: attached buffer
 	position_non_negative: position >= 0
 	position_within_bounds: position <= count
 	count_non_negative: count >= 0

@@ -1,5 +1,10 @@
 note
-	description: "Deferred base class for objects that can be stored and retrieved"
+	description: "[
+		Deferred base class for objects that can be stored and retrieved.
+
+		Model-based contracts: Storable objects can be modeled via MML.
+		Constraint is detachable separate ANY for SCOOP compatibility.
+	]"
 	author: "Larry Rix"
 	date: "$Date$"
 	revision: "$Revision$"

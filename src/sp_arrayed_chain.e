@@ -1,5 +1,10 @@
 note
-	description: "Array-backed implementation of SP_CHAIN"
+	description: "[
+		Array-backed implementation of SP_CHAIN.
+
+		Model-based contracts using MML_SEQUENCE for specification.
+		The model_items query provides a mathematical view of chain contents.
+	]"
 	author: "Larry Rix"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -97,6 +102,22 @@ feature -- Measurement
 		-- Number of items in chain
 		do
 			Result := items.count
+		end
+
+feature -- Model
+
+	model_items: MML_SEQUENCE [G]
+		-- Mathematical model of chain contents as a sequence.
+		local
+			i: INTEGER
+		do
+			create Result
+			from i := 1 until i > items.count loop
+				Result := Result & items.i_th (i)
+				i := i + 1
+			end
+		ensure then
+			domain_valid: Result.domain.count = count
 		end
 
 feature -- Status
@@ -266,6 +287,7 @@ feature {NONE} -- Implementation
 		-- Current cursor position
 
 invariant
-	items_attached: items /= Void
+	items_attached: attached items
+	cursor_valid: cursor_index >= 0 and cursor_index <= items.count + 1
 
 end

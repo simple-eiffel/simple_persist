@@ -1,5 +1,9 @@
 note
-	description: "Facade class providing simplified access to persistence operations"
+	description: "[
+		Facade class providing simplified access to persistence operations.
+
+		Design by Contract enhanced with void-safety assertions.
+	]"
 	author: "Larry Rix"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -28,8 +32,6 @@ feature -- File Operations
 
 	file_exists (a_path: PATH): BOOLEAN
 		-- Does persistence file exist?
-		require
-			path_attached: a_path /= Void
 		local
 			l_file: RAW_FILE
 		do
@@ -38,9 +40,7 @@ feature -- File Operations
 		end
 
 	delete_file (a_path: PATH)
-		-- Delete persistence file
-		require
-			path_attached: a_path /= Void
+		-- Delete persistence file.
 		local
 			l_file: RAW_FILE
 		do
@@ -48,16 +48,18 @@ feature -- File Operations
 			if l_file.exists then
 				l_file.delete
 			end
+		ensure
+			deleted: not file_exists (a_path)
 		end
 
 feature -- Configuration
 
 	set_default_path (a_path: PATH)
-		-- Set default storage path
-		require
-			path_attached: a_path /= Void
+		-- Set default storage path.
 		do
 			default_path := a_path
+		ensure
+			path_set: default_path = a_path
 		end
 
 	default_path: PATH

@@ -1,5 +1,10 @@
 note
-	description: "Generic chain of storable objects that can be persisted to file"
+	description: "[
+		Generic chain of storable objects that can be persisted to file.
+
+		Model-based contracts using MML_SEQUENCE for specification.
+		All elements are modeled as a mathematical sequence.
+	]"
 	author: "Larry Rix"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -69,6 +74,16 @@ feature -- Access
 	stored_version: NATURAL
 		-- Version number from stored file
 
+feature -- Model
+
+	model_items: MML_SEQUENCE [G]
+		-- Mathematical model of chain contents as a sequence.
+		-- For use in contracts only; not efficient for runtime use.
+		deferred
+		ensure
+			count_matches: Result.count = count
+		end
+
 feature -- Measurement
 
 	count: INTEGER
@@ -99,6 +114,8 @@ feature -- Status
 	has (v: G): BOOLEAN
 		-- Does chain contain v?
 		deferred
+		ensure
+			model_consistent: Result = model_items.has (v)
 		end
 
 	valid_index (i: INTEGER): BOOLEAN
@@ -160,35 +177,51 @@ feature -- Cursor Movement
 feature -- Element Change
 
 	extend (v: G)
-		-- Add v to end of chain
+		-- Add v to end of chain.
 		deferred
+		ensure
+			count_increased: count = old count + 1
+			model_extended: model_items |=| (old model_items).extended (v)
 		end
 
 	put (v: G)
-		-- Replace current item with v
+		-- Replace current item with v.
 		deferred
 		end
 
 	force (v: G)
-		-- Add v, extending capacity if needed
+		-- Add v, extending capacity if needed.
 		deferred
+		ensure
+			count_increased: count = old count + 1
 		end
 
 feature -- Removal
 
 	remove
-		-- Remove current item
+		-- Remove current item.
+		require
+			not_empty: not is_empty
+			valid_cursor: not before and not after
 		deferred
+		ensure
+			count_decreased: count = old count - 1
+			model_item_removed: model_items |=| (old model_items).removed_at (old index)
 		end
 
 	prune (v: G)
-		-- Remove first occurrence of v
+		-- Remove first occurrence of v.
 		deferred
+		ensure
+			count_effect: old model_items.has (v) implies count = old count - 1
 		end
 
 	wipe_out
-		-- Remove all items
+		-- Remove all items.
 		deferred
+		ensure
+			empty: is_empty
+			model_empty: model_items.is_empty
 		end
 
 	mark_deleted
@@ -340,8 +373,9 @@ feature {NONE} -- Implementation
 		-- Default size for read/write buffers
 
 invariant
-	reader_attached: reader /= Void
-	writer_attached: writer /= Void
+	reader_attached: attached reader
+	writer_attached: attached writer
 	deleted_count_non_negative: deleted_count >= 0
+	model_count_consistent: model_items.count = count
 
 end
